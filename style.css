@@ -18,40 +18,79 @@ body {
     color: white;
 }
 
-.container { width: 95%; max-width: 700px; z-index: 1; }
+/* 2열 배치를 위해 max-width를 900px로 확장했습니다 */
+.container { 
+    width: 95%; 
+    max-width: 900px; 
+    z-index: 1; 
+}
 
 header { text-align: center; margin-bottom: 30px; }
 
+/* --- 순위 리스트 (Grid 적용) --- */
+#ranking-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* PC 전용 2열 배치 */
+    gap: 15px;                             /* 항목 사이 간격 */
+    padding: 0;
+    list-style: none;
+    margin: 0;
+}
+
 .item {
     background: var(--card-bg);
-    margin-bottom: 15px;
     padding: 20px;
     border-radius: 12px;
     display: flex;
-    flex-direction: column; /* 세로 배치로 변경 */
+    flex-direction: column; 
     color: #333;
     cursor: grab;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: transform 0.2s, box-shadow 0.2s; /* PC용 호버 효과 */
 }
 
-.item.dragging { opacity: 0.5; background: #cce0ff; }
+/* PC용: 마우스 올렸을 때 살짝 강조 */
+.item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.item.dragging { 
+    opacity: 0.5; 
+    background: #cce0ff; 
+    cursor: grabbing;
+}
 
 /* 상단 정보: 순위와 제목 */
 .item-header {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .rank-number {
     font-weight: 800;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     color: var(--primary-color);
-    min-width: 45px;
+    min-width: 35px;
 }
 
-.book-title { font-weight: 700; font-size: 1.1rem; margin: 0; flex: 1; }
-.book-author { font-size: 0.9rem; color: #777; margin: 0; margin-left: 10px; }
+.book-title { 
+    font-weight: 700; 
+    font-size: 1.05rem; 
+    margin: 0; 
+    flex: 1; 
+    white-space: nowrap;      /* 제목이 길어지면 줄바꿈 방지 */
+    overflow: hidden;
+    text-overflow: ellipsis;  /* 너무 길면 ... 처리 */
+}
+
+.book-author { 
+    font-size: 0.85rem; 
+    color: #777; 
+    margin: 0; 
+    margin-left: 10px; 
+}
 
 /* 이유 입력창 */
 .reason-input {
@@ -60,12 +99,13 @@ header { text-align: center; margin-bottom: 30px; }
     border: 1px solid #ddd;
     border-radius: 8px;
     font-family: inherit;
-    font-size: 0.95rem;
-    resize: none; /* 크기 조절 방지 */
+    font-size: 0.9rem;
+    resize: none; 
     background: #f9f9f9;
     box-sizing: border-box;
     outline: none;
     transition: border-color 0.2s;
+    margin-top: auto; /* 제목이 짧아도 입력창 위치 통일 */
 }
 
 .reason-input:focus {
@@ -73,13 +113,15 @@ header { text-align: center; margin-bottom: 30px; }
     background: #fff;
 }
 
+/* --- 버튼 및 하단 영역 --- */
 .action-area {
     margin-top: 50px;
     padding-bottom: 50px;
+    text-align: center; /* 버튼을 중앙으로 이동 */
 }
 
 .btn-copy {
-    padding: 15px 35px;
+    padding: 15px 40px;
     font-size: 1.1rem;
     background: #27ae60;
     color: white;
@@ -88,9 +130,20 @@ header { text-align: center; margin-bottom: 30px; }
     cursor: pointer;
     font-weight: bold;
     box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
+    transition: background 0.2s, transform 0.1s;
 }
+
+.btn-copy:hover {
+    background: #219150;
+    transform: scale(1.05); /* 버튼 호버 시 약간 커짐 */
+}
+
+.btn-copy:active {
+    transform: scale(0.98);
+}
+
 .notion-guide {
-    background: rgba(255, 255, 255, 0.15); /* 반투명 배경 */
+    background: rgba(255, 255, 255, 0.15);
     border: 1px solid rgba(255, 255, 255, 0.3);
     padding: 12px;
     border-radius: 10px;
@@ -98,13 +151,10 @@ header { text-align: center; margin-bottom: 30px; }
     font-size: 0.95rem;
 }
 
-.notion-guide p {
-    margin: 0;
-    color: #ffffff;
-}
+.notion-guide p { margin: 0; color: #ffffff; }
 
 .notion-guide a {
-    color: #ffeb3b; /* 눈에 띄는 노란색 */
+    color: #ffeb3b;
     text-decoration: none;
     font-weight: bold;
     margin-left: 5px;
@@ -112,10 +162,7 @@ header { text-align: center; margin-bottom: 30px; }
     transition: all 0.2s;
 }
 
-.notion-guide a:hover {
-    color: #ffffff;
-    border-bottom-color: #ffffff;
-}
+.notion-guide a:hover { color: #ffffff; border-bottom-color: #ffffff; }
 
 .sub-text {
     font-size: 0.9rem;
