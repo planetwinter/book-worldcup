@@ -48,12 +48,14 @@ function loadList() {
     });
 }
 
+// 순위 업데이트 로직 (변화가 있을 때만 텍스트 변경하도록 효율화)
 function updateRankNumbers() {
     const items = rankingList.querySelectorAll(".item");
     items.forEach((item, index) => {
         const rankNum = item.querySelector(".rank-number");
-        if (rankNum.innerText != index + 1) {
-            rankNum.innerText = index + 1;
+        const newRank = index + 1;
+        if (rankNum.innerText != newRank) {
+            rankNum.innerText = newRank;
         }
     });
 }
@@ -61,20 +63,24 @@ function updateRankNumbers() {
 rankingList.addEventListener("dragover", e => {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
-    
-    // 현재 드래그 중이 아닌 모든 아이템들을 가져옵니다.
-    let siblings = [...rankingList.querySelectorAll(".item:not(.dragging)")];
-    
-    // 마우스 위치(e.clientY)와 각 아이템의 화면상 위치를 비교하여 
-    // 어느 아이템 앞에 놓을지 결정합니다.
-    let nextSibling = siblings.find(sibling => {
-        const box = sibling.getBoundingClientRect(); // 화면 기준 좌표 가져오기
-        const offset = e.clientY - box.top - box.height / 2; // 아이템의 중앙점 계산
+    if (!draggingItem) return;
+
+    // 현재 드래그 중이 아닌 모든 아이템 가져오기
+    const siblings = [...rankingList.querySelectorAll(".item:not(.dragging)")];
+
+    // 마우스 위치와 가장 가까운 '다음 아이템' 찾기
+    const nextSibling = siblings.find(sibling => {
+        const box = sibling.getBoundingClientRect();
         
-        // 마우스 위치가 해당 아이템의 중앙보다 위에 있으면 이 아이템이 nextSibling이 됨
-        return offset < 0;
+        // 2열 그리드에서는 세로(Y)뿐만 아니라 가로(X) 좌표의 중앙값도 고려해야 함
+        const horizontalCenter = box.left + box.width / 2;
+        const verticalCenter = box.top + box.height / 2;
+
+        // 마우스가 아이템의 중앙보다 왼쪽 혹은 위쪽에 있는지 확인
+        return e.clientX <= horizontalCenter && e.clientY <= verticalCenter || 
+               e.clientY <= box.top + box.height / 2;
     });
-    
+
     rankingList.insertBefore(draggingItem, nextSibling);
 });
 
