@@ -51,17 +51,30 @@ function loadList() {
 function updateRankNumbers() {
     const items = rankingList.querySelectorAll(".item");
     items.forEach((item, index) => {
-        item.querySelector(".rank-number").innerText = index + 1;
+        const rankNum = item.querySelector(".rank-number");
+        if (rankNum.innerText != index + 1) {
+            rankNum.innerText = index + 1;
+        }
     });
 }
 
 rankingList.addEventListener("dragover", e => {
     e.preventDefault();
     const draggingItem = document.querySelector(".dragging");
+    
+    // 현재 드래그 중이 아닌 모든 아이템들을 가져옵니다.
     let siblings = [...rankingList.querySelectorAll(".item:not(.dragging)")];
+    
+    // 마우스 위치(e.clientY)와 각 아이템의 화면상 위치를 비교하여 
+    // 어느 아이템 앞에 놓을지 결정합니다.
     let nextSibling = siblings.find(sibling => {
-        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+        const box = sibling.getBoundingClientRect(); // 화면 기준 좌표 가져오기
+        const offset = e.clientY - box.top - box.height / 2; // 아이템의 중앙점 계산
+        
+        // 마우스 위치가 해당 아이템의 중앙보다 위에 있으면 이 아이템이 nextSibling이 됨
+        return offset < 0;
     });
+    
     rankingList.insertBefore(draggingItem, nextSibling);
 });
 
