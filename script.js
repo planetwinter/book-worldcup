@@ -1,78 +1,86 @@
-// 1. 책 데이터 설정 (이미지가 없으면 공백 가능)
 const books = [
-    { title: "쇼펜하우어 소품문", author: "아르투어 쇼펜하우어", image: "https://via.placeholder.com/200x300?text=Book1" },
-    { title: "사탄탱고", author: "크라스나호르카이 라슬로", image: "" },
-    { title: "안톤 체호프 단편집", author: "안톤 체호프", image: "" },
-    { title: "가치 있는 삶", author: "마리 루티", image: "" },
-    { title: "기술 지배 시대의 인문학", author: "저자 미상", image: "" },
-    { title: "순수 이성 비판", author: "이마누엘 칸트", image: "" },
-    { title: "차라투스트라는 이렇게 말했다", author: "프리드리히 니체", image: "" },
-    { title: "이방인", author: "알베르 카뮈", image: "" }
+    { title: "오만과 편견", author: "제인 오스틴" },
+    { title: "참을 수 없는 존재의 가벼움", author: "밀란 쿤데라" },
+    { title: "모순", author: "양귀자" },
+    { title: "싯다르타", author: "헤르만 헤세" },
+    { title: "스토너", author: "존 윌리엄스" },
+    { title: "숨결이 바람될 때", author: "폴 칼라니티" },
+    { title: "달과 6펜스", author: "서머싯 몸" },
+    { title: "지리의 힘", author: "팀 마샬" },
+    { title: "주홍글씨", author: "너새니얼 호손" },
+    { title: "오베라는 남자", author: "프레드릭 배크만" },
+    { title: "젊은 베르테르의 슬픔", author: "요한 볼프강 폰 괴테" },
+    { title: "그 많던 싱아는 누가 다 먹었을까?", author: "박완서" },
+    { title: "체호프 단편선", author: "안톤 체호프" },
+    { title: "불안", author: "알랭 드 보통" },
+    { title: "사탄탱고", author: "크라스나호르카이 라슬로" },
+    { title: "파리대왕", author: "윌리엄 골딩" }
 ];
 
-let currentItems = [];
-let nextRoundItems = [];
-let currentIndex = 0;
-let roundCount = 1;
+const rankingList = document.getElementById("ranking-list");
 
-// 초기화: 셔플 후 게임 시작
-function initGame() {
-    currentItems = books.sort(() => Math.random() - 0.5);
-    updateDisplay();
+function loadList() {
+    books.forEach((book, index) => {
+        const li = document.createElement("li");
+        li.className = "item";
+        li.draggable = true;
+        li.innerHTML = `
+            <div class="item-header">
+                <div class="rank-number">${index + 1}</div>
+                <p class="book-title">${book.title}</p>
+                <p class="book-author">${book.author}</p>
+            </div>
+            <textarea class="reason-input" placeholder="선정 이유를 적어주세요 (캡처용)" rows="2"></textarea>
+        `;
+        
+        // 드래그 시 입력창 포커스 해제
+        li.addEventListener("dragstart", () => {
+            li.querySelector('textarea').blur();
+            setTimeout(() => li.classList.add("dragging"), 0);
+        });
+        
+        li.addEventListener("dragend", () => {
+            li.classList.remove("dragging");
+            updateRankNumbers();
+        });
+        
+        rankingList.appendChild(li);
+    });
 }
 
-function updateDisplay() {
-    const totalInRound = currentItems.length;
-    const currentMatch = Math.floor(currentIndex / 2) + 1;
-    const totalMatches = totalInRound / 2;
-
-    document.getElementById('round-info').innerText = 
-        `${totalInRound === 2 ? '결승전' : totalInRound + '강'} (${currentMatch}/${totalMatches})`;
-
-    const left = currentItems[currentIndex];
-    const right = currentItems[currentIndex + 1];
-
-    // 왼쪽 카드 데이터 바인딩
-    document.getElementById('left-title').innerText = left.title;
-    document.getElementById('left-author').innerText = left.author;
-    document.getElementById('left-img').src = left.image || "";
-
-    // 오른쪽 카드 데이터 바인딩
-    document.getElementById('right-title').innerText = right.title;
-    document.getElementById('right-author').innerText = right.author;
-    document.getElementById('right-img').src = right.image || "";
+function updateRankNumbers() {
+    const items = rankingList.querySelectorAll(".item");
+    items.forEach((item, index) => {
+        item.querySelector(".rank-number").innerText = index + 1;
+    });
 }
 
-function selectWinner(side) {
-    // 승자 추가
-    nextRoundItems.push(currentItems[currentIndex + side]);
-    currentIndex += 2;
+rankingList.addEventListener("dragover", e => {
+    e.preventDefault();
+    const draggingItem = document.querySelector(".dragging");
+    let siblings = [...rankingList.querySelectorAll(".item:not(.dragging)")];
+    let nextSibling = siblings.find(sibling => {
+        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+    });
+    rankingList.insertBefore(draggingItem, nextSibling);
+});
 
-    if (currentIndex >= currentItems.length) {
-        // 라운드 종료
-        if (nextRoundItems.length === 1) {
-            showResult(nextRoundItems[0]);
-        } else {
-            currentItems = nextRoundItems;
-            nextRoundItems = [];
-            currentIndex = 0;
-            updateDisplay();
-        }
-    } else {
-        updateDisplay();
-    }
+// 텍스트 복사 기능 (이유 포함)
+function copyResults() {
+    const items = rankingList.querySelectorAll(".item");
+    let resultText = "🏆 2025 나의 올해의 책 순위 & 리뷰 🏆\n\n";
+    
+    items.forEach((item, index) => {
+        const title = item.querySelector(".book-title").innerText;
+        const reason = item.querySelector(".reason-input").value;
+        resultText += `${index + 1}위: ${title}\n`;
+        if(reason) resultText += `💬 이유: ${reason}\n`;
+        resultText += `-------------------\n`;
+    });
+    
+    navigator.clipboard.writeText(resultText).then(() => {
+        alert("순위와 이유가 복사되었습니다! 단톡방에 붙여넣어 보세요.");
+    });
 }
 
-function showResult(winner) {
-    document.getElementById('game-container').classList.add('hidden');
-    document.getElementById('round-info').classList.add('hidden');
-    const resultCont = document.getElementById('result-container');
-    resultCont.classList.remove('hidden');
-
-    document.getElementById('winner-display').innerHTML = `
-        <h3>${winner.title}</h3>
-        <p>${winner.author}</p>
-    `;
-}
-
-initGame();
+loadList();
