@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 올해의 책 월드컵</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 올해의 책 월드컵</h1>
+            <p id="round-info">준비 중...</p>
+        </header>
+
+        <main id="game-container">
+            <div class="match-up">
+                <div id="left-card" class="book-card" onclick="selectWinner(0)">
+                    <div class="image-box"><img id="left-img" src="" alt=""></div>
+                    <div class="text-box">
+                        <h2 id="left-title">제목</h2>
+                        <p id="left-author">저자</p>
+                    </div>
+                </div>
+
+                <div class="vs">VS</div>
+
+                <div id="right-card" class="book-card" onclick="selectWinner(1)">
+                    <div class="image-box"><img id="right-img" src="" alt=""></div>
+                    <div class="text-box">
+                        <h2 id="right-title">제목</h2>
+                        <p id="right-author">저자</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div id="result-container" class="hidden">
+            <h2>🏆 올해의 책 선정 완료!</h2>
+            <div id="winner-display"></div>
+            <button onclick="location.reload()">다시 하기</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
