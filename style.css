@@ -18,23 +18,24 @@ body {
     color: white;
 }
 
-/* 2열 배치를 위해 max-width를 900px로 확장했습니다 */
+/* 1. 컨테이너 너비를 2열이 충분히 들어갈 만큼 넓혔습니다 */
 .container { 
     width: 95%; 
-    max-width: 900px; 
+    max-width: 1000px; /* 700px에서 1000px로 확장 */
     z-index: 1; 
 }
 
 header { text-align: center; margin-bottom: 30px; }
 
-/* --- 순위 리스트 (Grid 적용) --- */
+/* 2. 2열 그리드 설정 (강제 지정) */
 #ranking-list {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* PC 전용 2열 배치 */
-    gap: 15px;                             /* 항목 사이 간격 */
+    grid-template-columns: 1fr 1fr; /* 정확히 반반씩 2열 */
+    gap: 20px;                     /* 항목 사이의 여백 */
     padding: 0;
     list-style: none;
     margin: 0;
+    width: 100%;                   /* 컨테이너 너비에 맞춤 */
 }
 
 .item {
@@ -46,10 +47,13 @@ header { text-align: center; margin-bottom: 30px; }
     color: #333;
     cursor: grab;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: transform 0.2s, box-shadow 0.2s; /* PC용 호버 효과 */
+    transition: transform 0.2s, box-shadow 0.2s;
+    
+    /* 중요: 내용물 때문에 박스가 넓어지는 것을 방지 */
+    min-width: 0; 
+    box-sizing: border-box;
 }
 
-/* PC용: 마우스 올렸을 때 살짝 강조 */
 .item:hover {
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(0,0,0,0.4);
@@ -80,9 +84,10 @@ header { text-align: center; margin-bottom: 30px; }
     font-size: 1.05rem; 
     margin: 0; 
     flex: 1; 
-    white-space: nowrap;      /* 제목이 길어지면 줄바꿈 방지 */
+    /* 제목이 길면 한 줄 처리 후 ... */
+    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;  /* 너무 길면 ... 처리 */
+    text-overflow: ellipsis;
 }
 
 .book-author { 
@@ -90,6 +95,7 @@ header { text-align: center; margin-bottom: 30px; }
     color: #777; 
     margin: 0; 
     margin-left: 10px; 
+    white-space: nowrap;
 }
 
 /* 이유 입력창 */
@@ -104,8 +110,7 @@ header { text-align: center; margin-bottom: 30px; }
     background: #f9f9f9;
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.2s;
-    margin-top: auto; /* 제목이 짧아도 입력창 위치 통일 */
+    margin-top: 10px;
 }
 
 .reason-input:focus {
@@ -113,11 +118,11 @@ header { text-align: center; margin-bottom: 30px; }
     background: #fff;
 }
 
-/* --- 버튼 및 하단 영역 --- */
+/* 3. 하단 영역 및 버튼 중앙 정렬 */
 .action-area {
     margin-top: 50px;
     padding-bottom: 50px;
-    text-align: center; /* 버튼을 중앙으로 이동 */
+    text-align: center; /* 텍스트 및 버튼 중앙 정렬 */
 }
 
 .btn-copy {
@@ -130,16 +135,11 @@ header { text-align: center; margin-bottom: 30px; }
     cursor: pointer;
     font-weight: bold;
     box-shadow: 0 4px 15px rgba(39, 174, 96, 0.4);
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.2s;
 }
 
 .btn-copy:hover {
     background: #219150;
-    transform: scale(1.05); /* 버튼 호버 시 약간 커짐 */
-}
-
-.btn-copy:active {
-    transform: scale(0.98);
 }
 
 .notion-guide {
@@ -159,13 +159,4 @@ header { text-align: center; margin-bottom: 30px; }
     font-weight: bold;
     margin-left: 5px;
     border-bottom: 1px solid #ffeb3b;
-    transition: all 0.2s;
-}
-
-.notion-guide a:hover { color: #ffffff; border-bottom-color: #ffffff; }
-
-.sub-text {
-    font-size: 0.9rem;
-    color: #ddd;
-    margin-top: 10px;
 }
