@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025 나만의 올해의 책 선정</title>
     <style>
-        /* CSS 스타일 시작 */
         :root {
             --primary-color: #4a90e2;
             --card-bg: rgba(255, 255, 255, 0.95);
+            --danger-color: #e74c3c;
         }
 
         body {
@@ -34,10 +34,9 @@
 
         header { text-align: center; margin-bottom: 30px; }
 
-        /* 2열 그리드 리스트 */
         #ranking-list {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* PC 전용 2열 배치 */
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             padding: 0;
             list-style: none;
@@ -54,18 +53,44 @@
             cursor: grab;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
             transition: transform 0.2s;
-            min-width: 0; /* 그리드 내부 터짐 방지 */
+            min-width: 0;
+            position: relative; /* 삭제 버튼 배치를 위해 추가 */
         }
 
         .item:hover { transform: translateY(-3px); }
         .item.dragging { opacity: 0.5; background: #cce0ff; cursor: grabbing; }
 
-        /* 입력 영역 스타일 */
+        /* 삭제 버튼 스타일 */
+        .btn-delete {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 24px;
+            height: 24px;
+            background: #eee;
+            color: #777;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            line-height: 1;
+        }
+
+        .btn-delete:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+
         .item-header {
             display: flex;
             flex-direction: column;
             gap: 8px;
             margin-bottom: 15px;
+            padding-right: 25px; /* 삭제 버튼과 겹치지 않게 여백 추가 */
         }
 
         .rank-row { display: flex; align-items: center; gap: 10px; }
@@ -105,7 +130,6 @@
             margin-top: auto;
         }
 
-        /* 하단 액션 버튼 */
         .action-area {
             margin-top: 50px;
             padding-bottom: 50px;
@@ -146,22 +170,20 @@
     <div class="container">
         <header>
             <h1>📚 나의 2025 올해의 책</h1>
-            <p>직접 입력하고 드래그하여 순위를 정해보세요!</p>
+            <p>책을 입력하고 드래그하여 순위를 정해보세요!</p>
         </header>
 
-        <ul id="ranking-list">
-            </ul>
+        <ul id="ranking-list"></ul>
 
         <div class="action-area">
             <button class="btn-add" onclick="addNewItem()">➕ 항목 추가하기</button>
             <br>
             <button class="btn-copy" onclick="copyResults()">📋 텍스트로 복사하기</button>
-            <p class="sub-text">* 작성을 마친 후 위 버튼을 눌러 공유해주세요!</p>
+            <p class="sub-text">* 작성을 마친 후 화면을 캡처해서 공유해 주세요!</p>
         </div>
     </div>
 
     <script>
-        /* 자바스크립트 시작 */
         const rankingList = document.getElementById("ranking-list");
 
         // 1. 항목 추가 함수
@@ -170,6 +192,18 @@
             li.className = "item";
             li.draggable = true;
             
+            // 삭제 버튼 생성
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "btn-delete";
+            deleteBtn.innerHTML = "×";
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation(); // 드래그 이벤트 간섭 방지
+                if(confirm("이 항목을 삭제하시겠습니까?")) {
+                    li.remove();
+                    updateRankNumbers();
+                }
+            };
+
             const currentRank = rankingList.querySelectorAll(".item").length + 1;
 
             li.innerHTML = `
@@ -183,11 +217,10 @@
                 <textarea class="reason-input" placeholder="선정 이유를 적어주세요" rows="2"></textarea>
             `;
 
-            // 드래그 이벤트 연결
-            li.addEventListener("dragstart", () => {
-                li.classList.add("dragging");
-            });
+            // 삭제 버튼을 li에 추가
+            li.appendChild(deleteBtn);
 
+            li.addEventListener("dragstart", () => li.classList.add("dragging"));
             li.addEventListener("dragend", () => {
                 li.classList.remove("dragging");
                 updateRankNumbers();
@@ -196,25 +229,22 @@
             rankingList.appendChild(li);
         }
 
-        // 2. 초기 5개 항목 생성
+        // 초기 5개 항목 생성
         for (let i = 0; i < 5; i++) {
             addNewItem();
         }
 
-        // 3. 드래그 오버 로직 (2열 그리드 대응)
+        // 드래그 로직
         rankingList.addEventListener("dragover", e => {
             e.preventDefault();
             const draggingItem = document.querySelector(".dragging");
             if (!draggingItem) return;
 
             const siblings = [...rankingList.querySelectorAll(".item:not(.dragging)")];
-
             const nextSibling = siblings.find(sibling => {
                 const box = sibling.getBoundingClientRect();
                 const horizontalCenter = box.left + box.width / 2;
                 const verticalCenter = box.top + box.height / 2;
-
-                // 마우스 위치가 카드의 가로/세로 중앙점보다 앞서있는지 판단
                 return (e.clientX <= horizontalCenter && e.clientY <= verticalCenter) || 
                        (e.clientY <= box.top + box.height / 2);
             });
@@ -222,7 +252,7 @@
             rankingList.insertBefore(draggingItem, nextSibling);
         });
 
-        // 4. 순위 번호 업데이트
+        // 순위 업데이트
         function updateRankNumbers() {
             const items = rankingList.querySelectorAll(".item");
             items.forEach((item, index) => {
@@ -230,11 +260,15 @@
             });
         }
 
-        // 5. 결과 텍스트 복사
+        // 결과 복사
         function copyResults() {
             const items = rankingList.querySelectorAll(".item");
+            if (items.length === 0) {
+                alert("복사할 항목이 없습니다.");
+                return;
+            }
+
             let resultText = "🏆 2025 나만의 올해의 책 리스트 🏆\n\n";
-            
             items.forEach((item, index) => {
                 const title = item.querySelector(".input-title").value || "(제목 없음)";
                 const author = item.querySelector(".input-author").value || "(저자 미상)";
@@ -247,8 +281,6 @@
             
             navigator.clipboard.writeText(resultText).then(() => {
                 alert("리스트가 클립보드에 복사되었습니다!");
-            }).catch(err => {
-                alert("복사에 실패했습니다. 직접 텍스트를 선택해 복사해 주세요.");
             });
         }
     </script>
